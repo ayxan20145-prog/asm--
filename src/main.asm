@@ -82,7 +82,6 @@ lexer_next_token:
         ret
 .eof:
         mov qword [rsi + Token.type], TOKEN_EOF
-        call lexer_advance
         ret
 .semicolon:
         mov qword [rsi + Token.type], TOKEN_SEMICOLON
