@@ -24,6 +24,9 @@ _start:
         mov rsi, source
         call lexer_new
         
+        lea rdi, [lexer]
+        call lexer_current
+
         mov rax, 60
         xor rdi, rdi
         syscall
@@ -34,4 +37,18 @@ _start:
 lexer_new:
         mov qword [rdi + Lexer.source], rsi
         mov qword [rdi + Lexer.position], 0
+        ret
+
+; char lexer_current(Lexer *lexer)
+; rdi is lexer
+lexer_current:
+        mov rax, qword [rdi + Lexer.source] ; rax = source pointer
+        mov rcx, qword [rdi + Lexer.position] ; rcx = position
+        movzx rax, byte [rax + rcx]
+        ret
+
+; void lexer_advance(Lexer *lexer)
+; rdi is lexer
+lexer_advance:
+        inc qword [rdi + Lexer.position]
         ret
