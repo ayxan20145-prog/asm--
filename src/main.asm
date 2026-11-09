@@ -1,12 +1,11 @@
 %include "lexer.inc"
 
 section .bss
+        buffer resb 1025
         tokens: resb Token_size * MAX_TOKENS
         lexer: resb Lexer_size
 
 section .data
-        source db "5;", 0
-
         msg_unknown db "UNKNOWN", 10
         msg_unknown_len equ $ - msg_unknown
 
@@ -16,12 +15,45 @@ section .data
         msg_semicolon db "SEMICOLON", 10
         msg_semicolon_len equ $ - msg_semicolon
 
+        arg_error db "usage: asm-- <PATH>", 10
+        arg_error_len equ $ - arg_error
+        
+        file_error db "file not found", 10
+        file_error_len equ $ - file_error
+
 section .text
         global _start
 
 _start:
+        mov rax, [rsp] ; argc
+        cmp rax, 2
+        jne .arg_error
+
+        ; open file
+        mov rax, 2
+        mov rdi, [rsp + 16] ; argv[1]
+        mov rsi, 0
+        syscall
+
+        test rax, rax ; check for error
+        js .file_error
+
+        mov r12, rax ; save descripor
+
+        ; read file
+        mov rax, 0
+        mov rdi, r12
+        mov rsi, buffer
+        mov rdx, 1024
+        syscall
+
+        test rax, rax
+        js .close_file
+
+        mov byte [buffer + rax], 0
+        
         lea rdi, [lexer]
-        mov rsi, source
+        mov rsi, buffer
         call lexer_new
         
         lea rdi, [lexer]
@@ -31,7 +63,6 @@ _start:
 
         mov r8, rax ; count
         xor rbx, rbx ; i
-
 .print_loop:
         cmp rbx, r8
         jae .done
@@ -46,8 +77,30 @@ _start:
         mov rax, 60
         xor rdi, rdi
         syscall
+.close_file:
+        mov rax, 3
+        mov rdi, r12
+        syscall
 
-; void print_str(char *buf)
+        jmp .error
+.arg_error:
+        lea rdi, [arg_error]
+        mov rsi, arg_error_len
+        call print_str
+
+        jmp .error
+.file_error:
+        lea rdi, [file_error]
+        mov rsi, file_error_len
+        call print_str
+
+        jmp .error
+.error:
+        mov rax, 60
+        mov rdi, 1
+        syscall
+
+; void print_str(char *buf, size_t len)
 ; rdi is buf
 ; rsi is len
 print_str:

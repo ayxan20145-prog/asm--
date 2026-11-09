@@ -6,7 +6,9 @@ SRC = src
 INC = include
 
 OBJS = $(BUILD)/main.o $(BUILD)/lexer.o
-EXE = $(BUILD)/main
+EXE = $(BUILD)/asm--
+
+ARGS ?=
 
 .PHONY: all clean run
 
@@ -28,4 +30,4 @@ clean:
 	rm -rf $(BUILD)
 
 run: all
-	./$(EXE)
+	./$(EXE) $(ARGS)
