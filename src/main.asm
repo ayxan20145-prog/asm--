@@ -1,9 +1,11 @@
 %include "lexer.inc"
+%include "parser.inc"
 
 section .bss
         buffer resb 1025
         tokens: resb Token_size * MAX_TOKENS
         lexer: resb Lexer_size
+        parser: resb Parser_size
 
 section .data
         msg_unknown db "UNKNOWN", 10
@@ -76,19 +78,10 @@ _start:
         mov rdx, MAX_TOKENS
         call lexer_tokenize
 
-        mov r8, rax ; count
-        xor rbx, rbx ; i
-.print_loop:
-        cmp rbx, r8
-        jae .done
-
-        imul rdi, rbx, Token_size
-        lea rdi, [tokens + rdi] ; rdi = &tokens[i]
-        call print_token
-
-        inc rbx
-        jmp .print_loop
-.done:  
+        lea rdi, [parser]
+        lea rsi, [tokens]
+        call parser_new
+        
         mov rax, 60
         xor rdi, rdi
         syscall

@@ -5,7 +5,7 @@ BUILD = build
 SRC = src
 INC = include
 
-OBJS = $(BUILD)/main.o $(BUILD)/lexer.o
+OBJS = $(BUILD)/main.o $(BUILD)/lexer.o $(BUILD)/parser.o
 EXE = $(BUILD)/asm--
 
 ARGS ?=
@@ -17,10 +17,13 @@ all: $(EXE)
 $(BUILD):
 	mkdir -p $(BUILD)
 
-$(BUILD)/main.o: $(SRC)/main.asm $(INC)/lexer.inc $(INC)/token.inc | $(BUILD)
+$(BUILD)/main.o: $(SRC)/main.asm $(INC)/lexer.inc $(INC)/parser.inc $(INC)/token.inc | $(BUILD)
 	$(ASM) -f elf64 -I$(INC)/ $< -o $@
 
 $(BUILD)/lexer.o: $(SRC)/lexer.asm $(INC)/lexer.inc $(INC)/token.inc | $(BUILD)
+	$(ASM) -f elf64 -I$(INC)/ $< -o $@
+
+$(BUILD)/parser.o: $(SRC)/parser.asm $(INC)/parser.inc $(INC)/token.inc | $(BUILD)
 	$(ASM) -f elf64 -I$(INC)/ $< -o $@
 
 $(EXE): $(OBJS)
