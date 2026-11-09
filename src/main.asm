@@ -144,10 +144,10 @@ lexer_tokenize:
         jmp .loop
 .done:  
         mov rax, rbx
-        pop rbx
-        pop r12
-        pop r13
         pop r14
+        pop r13
+        pop r12
+        pop rbx
         ret
 
 ; void print_str(char *buf)
