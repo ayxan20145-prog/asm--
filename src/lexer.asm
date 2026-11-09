@@ -55,6 +55,18 @@ lexer_next_token:
         cmp rax, ';'
         je .semicolon
 
+        cmp rax, '+'
+        je .plus
+
+        cmp rax, '-'
+        je .minus
+
+        cmp rax, '*'
+        je .star
+        
+        cmp rax, '/'
+        je .slash
+
         cmp rax, '0'
         jb .unknown
 
@@ -71,6 +83,22 @@ lexer_next_token:
         ret
 .semicolon:
         mov qword [rsi + Token.type], TOKEN_SEMICOLON
+        call lexer_advance
+        ret
+.plus:
+        mov qword [rsi + Token.type], TOKEN_PLUS
+        call lexer_advance
+        ret
+.minus:
+        mov qword [rsi + Token.type], TOKEN_MINUS
+        call lexer_advance
+        ret
+.star:
+        mov qword [rsi + Token.type], TOKEN_STAR
+        call lexer_advance
+        ret
+.slash:
+        mov qword [rsi + Token.type], TOKEN_SLASH
         call lexer_advance
         ret
 .value:

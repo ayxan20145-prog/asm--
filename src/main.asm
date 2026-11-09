@@ -17,6 +17,18 @@ section .data
         
         msg_value db "VALUE", 10
         msg_value_len equ $ - msg_value
+        
+        msg_plus db "PLUS", 10
+        msg_plus_len equ $ - msg_plus
+        
+        msg_minus db "MINUS", 10
+        msg_minus_len equ $ - msg_minus
+        
+        msg_star db "STAR", 10
+        msg_star_len equ $ - msg_star
+        
+        msg_slash db "SLASH", 10
+        msg_slash_len equ $ - msg_slash
 
         arg_error db "usage: asm-- <PATH>", 10
         arg_error_len equ $ - arg_error
@@ -127,6 +139,18 @@ print_token:
         
         cmp rax, TOKEN_SEMICOLON
         je .semicolon
+
+        cmp rax, TOKEN_PLUS
+        je .plus
+
+        cmp rax, TOKEN_MINUS
+        je .minus
+
+        cmp rax, TOKEN_STAR
+        je .star
+        
+        cmp rax, TOKEN_SLASH
+        je .slash
         
         cmp rax, TOKEN_VALUE
         je .value
@@ -144,6 +168,26 @@ print_token:
 .semicolon:
         lea rdi, [msg_semicolon]
         mov rsi, msg_semicolon_len
+        call print_str
+        ret
+.plus:
+        lea rdi, [msg_plus]
+        mov rsi, msg_plus_len
+        call print_str
+        ret
+.minus:
+        lea rdi, [msg_minus]
+        mov rsi, msg_minus_len
+        call print_str
+        ret
+.star:
+        lea rdi, [msg_star]
+        mov rsi, msg_star_len
+        call print_str
+        ret
+.slash:
+        lea rdi, [msg_slash]
+        mov rsi, msg_slash_len
         call print_str
         ret
 .value:

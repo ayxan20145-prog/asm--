@@ -5,6 +5,10 @@
 %define TOKEN_EOF       1
 %define TOKEN_SEMICOLON 2
 %define TOKEN_VALUE     3
+%define TOKEN_PLUS      4
+%define TOKEN_MINUS     5
+%define TOKEN_STAR      6
+%define TOKEN_SLASH     7
 
 %define MAX_TOKENS 1024
 
