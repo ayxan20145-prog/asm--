@@ -2,8 +2,10 @@ ASM = nasm
 LD = ld
 
 BUILD = build
-SRC = src/main.asm
-OBJ = $(BUILD)/main.o
+SRC = src
+INC = include
+
+OBJS = $(BUILD)/main.o $(BUILD)/lexer.o
 EXE = $(BUILD)/main
 
 .PHONY: all clean run
@@ -13,11 +15,14 @@ all: $(EXE)
 $(BUILD):
 	mkdir -p $(BUILD)
 
-$(OBJ): $(SRC) | $(BUILD)
-	$(ASM) -f elf64 $< -o $@
+$(BUILD)/main.o: $(SRC)/main.asm $(INC)/lexer.inc $(INC)/token.inc | $(BUILD)
+	$(ASM) -f elf64 -I$(INC)/ $< -o $@
 
-$(EXE): $(OBJ)
-	$(LD) $< -o $@
+$(BUILD)/lexer.o: $(SRC)/lexer.asm $(INC)/lexer.inc $(INC)/token.inc | $(BUILD)
+	$(ASM) -f elf64 -I$(INC)/ $< -o $@
+
+$(EXE): $(OBJS)
+	$(LD) $(OBJS) -o $@
 
 clean:
 	rm -rf $(BUILD)
