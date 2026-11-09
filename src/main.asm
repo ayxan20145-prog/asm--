@@ -14,6 +14,9 @@ section .data
         
         msg_semicolon db "SEMICOLON", 10
         msg_semicolon_len equ $ - msg_semicolon
+        
+        msg_value db "VALUE", 10
+        msg_value_len equ $ - msg_value
 
         arg_error db "usage: asm-- <PATH>", 10
         arg_error_len equ $ - arg_error
@@ -124,6 +127,9 @@ print_token:
         
         cmp rax, TOKEN_SEMICOLON
         je .semicolon
+        
+        cmp rax, TOKEN_VALUE
+        je .value
         ret
 .unknown:
         lea rdi, [msg_unknown]
@@ -138,5 +144,10 @@ print_token:
 .semicolon:
         lea rdi, [msg_semicolon]
         mov rsi, msg_semicolon_len
+        call print_str
+        ret
+.value:
+        lea rdi, [msg_value]
+        mov rsi, msg_value_len
         call print_str
         ret

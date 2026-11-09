@@ -38,7 +38,13 @@ lexer_next_token:
         call lexer_current
         cmp rax, ' '
         je .advance
-        jne .not_loop
+        cmp rax, 9 ; \t
+        je .advance
+        cmp rax, 10 ; \n
+        je .advance
+        cmp rax, 13 ; \r
+        je .advance
+        jmp .not_loop
 .advance:
         call lexer_advance
         jmp .loop
@@ -49,6 +55,14 @@ lexer_next_token:
         cmp rax, ';'
         je .semicolon
 
+        cmp rax, '0'
+        jb .unknown
+
+        cmp rax, '9'
+        ja .unknown
+
+        jmp .value
+.unknown:
         mov qword [rsi + Token.type], TOKEN_UNKNOWN
         call lexer_advance
         ret
@@ -58,6 +72,23 @@ lexer_next_token:
 .semicolon:
         mov qword [rsi + Token.type], TOKEN_SEMICOLON
         call lexer_advance
+        ret
+.value:
+        mov qword [rsi + Token.type], TOKEN_VALUE
+        xor r8, r8
+.value_loop:
+        sub rax, '0'
+        imul r8, r8, 10
+        add r8, rax
+        call lexer_advance
+        call lexer_current
+        cmp rax, '0'
+        jb .value_done
+        cmp rax, '9'
+        ja .value_done
+        jmp .value_loop
+.value_done:
+        mov qword [rsi + Token.value], r8
         ret
 
 ; size_t lexer_tokenize(Lexer *lexer, Token *tokens, size_t max_tokens)
