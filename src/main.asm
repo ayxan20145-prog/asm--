@@ -2,6 +2,8 @@
 %define TOKEN_EOF       1
 %define TOKEN_SEMICOLON 2
 
+%define MAX_TOKENS 1024
+
 struc Token
         .type: resq 1
 endstruc
@@ -12,7 +14,7 @@ struc Lexer
 endstruc
 
 section .bss
-        token: resb Token_size
+        tokens: resb Token_size * MAX_TOKENS
         lexer: resb Lexer_size
 
 section .data
@@ -34,17 +36,26 @@ _start:
         lea rdi, [lexer]
         mov rsi, source
         call lexer_new
-.loop:
+        
         lea rdi, [lexer]
-        lea rsi, [token]
-        call lexer_next_token
+        lea rsi, [tokens]
+        mov rdx, MAX_TOKENS
+        call lexer_tokenize
 
-        lea rdi, [token]
+        mov r8, rax ; count
+        xor rbx, rbx ; i
+
+.print_loop:
+        cmp rbx, r8
+        jae .done
+
+        imul rdi, rbx, Token_size
+        lea rdi, [tokens + rdi] ; rdi = &tokens[i]
         call print_token
 
-        cmp qword [token + Token.type], TOKEN_EOF
-        jne .loop
-        
+        inc rbx
+        jmp .print_loop
+.done:  
         mov rax, 60
         xor rdi, rdi
         syscall
@@ -99,6 +110,44 @@ lexer_next_token:
 .semicolon:
         mov qword [rsi + Token.type], TOKEN_SEMICOLON
         call lexer_advance
+        ret
+
+; size_t lexer_tokenize(Lexer *lexer, Token *tokens, size_t max_tokens)
+; rdi is lexer
+; rsi is tokens
+; rdx is max_tokens
+; returns number of tokens written
+lexer_tokenize:
+        push rbx ; count
+        push r12 ; lexer
+        push r13 ; tokens
+        push r14 ; capacity
+
+        mov r12, rdi
+        mov r13, rsi
+        mov r14, rdx
+        xor rbx, rbx
+.loop:
+        cmp rbx, r14
+        jae .done ; buffer full
+
+        mov rdi, r12
+        mov rsi, r13
+        call lexer_next_token
+
+        inc rbx
+
+        cmp qword [r13], TOKEN_EOF
+        je .done
+
+        add r13, Token_size
+        jmp .loop
+.done:  
+        mov rax, rbx
+        pop rbx
+        pop r12
+        pop r13
+        pop r14
         ret
 
 ; void print_str(char *buf)
