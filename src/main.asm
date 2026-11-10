@@ -81,6 +81,12 @@ _start:
         lea rdi, [parser]
         lea rsi, [tokens]
         call parser_new
+
+        lea rdi, [parser]
+        call parser_current
+
+        mov rdi, rax
+        call print_token
         
         mov rax, 60
         xor rdi, rdi

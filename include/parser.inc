@@ -10,6 +10,7 @@ endstruc
 
 %ifndef PARSER_IMPL
         extern parser_new
+        extern parser_current
 %endif
 
 %endif
