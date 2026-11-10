@@ -88,6 +88,15 @@ _start:
         mov rdi, rax
         call print_token
         
+        lea rdi, [parser]
+        call parser_advance
+
+        lea rdi, [parser]
+        call parser_current
+
+        mov rdi, rax
+        call print_token
+        
         mov rax, 60
         xor rdi, rdi
         syscall

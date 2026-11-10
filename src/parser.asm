@@ -4,6 +4,7 @@
 section .text
         global parser_new
         global parser_current
+        global parser_advance
 
 ; void parser_new(Parser *parser, Token *tokens)
 ; rdi is parser
@@ -20,4 +21,10 @@ parser_current:
         mov rcx, qword [rdi + Parser.position]
         imul rcx, rcx, Token_size
         add rax, rcx
+        ret
+
+; void parser_advance(Parser *parser)
+; rdi is parser
+parser_advance:
+        inc qword [rdi + Parser.position]
         ret
